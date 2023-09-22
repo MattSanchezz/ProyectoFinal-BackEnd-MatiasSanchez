@@ -14,7 +14,7 @@ app.get('/products/:pid', (req, res) => {
   const product = productManager.getProductsById(productId);
 
   if (product === 'Not Found') {
-    res.status(404).json({ message: 'Producto no encontrado' });
+    res.status(404).json({ message: 'El producto no se ha encontrado' });
   } else {
     res.json({ product });
   }

@@ -65,7 +65,7 @@ class ProductManager {
       return 'Producto no encontrado';
     }
     this.products.splice(productIndex, 1);
-    return 'Producto eliminado';
+    return 'Productos eliminados';
   }
 
   saveToFile(filename) {
