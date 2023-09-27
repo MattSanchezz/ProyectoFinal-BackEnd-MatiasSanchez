@@ -1,5 +1,6 @@
 import express from 'express';
-import productManager from './index.js';
+import { productManager, CartManager } from './index.js';
+
 const app = express();
 
 app.use(express.json());
@@ -53,21 +54,14 @@ app.delete('/products/:pid', (req, res) => {
   }
 });
 
-app.post('/carts', (req, res) => {
-  const newCart = {
-    id: generateCartId(),
-    products: [],
-  };
-
-  res.status(201).json({ cart: newCart });
+app.get('/carts', (req, res) => {
+  const carts = CartManager.getAllCarts();
+  res.json({ carts });
 });
 
 app.get('/carts/:cid', (req, res) => {
   const cartId = req.params.cid;
-  const cart = {
-    id: cartId,
-    products: [] 
-  };
+  const cart = CartManager.getCartById(cartId);
 
   if (cart) {
     res.json({ cart });
@@ -80,35 +74,19 @@ app.post('/carts/:cid/product/:pid', (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
   const quantity = 1;
-  
-  const cart = {
-    id: cartId,
-    products: [] 
-  };
-  
-  const product = {
-    id: productId,
-  };
 
-  if (!cart) {
+  const result = CartManager.addToCart(cartId, productId, quantity);
+
+  if (result === 'Carrito no encontrado') {
     res.status(404).json({ message: 'Carrito no encontrado' });
-  } else if (!product) {
+  } else if (result === 'Producto no encontrado') {
     res.status(404).json({ message: 'Producto no encontrado' });
   } else {
-    const cartProduct = {
-      product: { id: product.id },
-      quantity
-    };
-    cart.products.push(cartProduct);
-    res.status(201).json({ cart });
+    res.status(201).json({ message: 'Producto agregado al carrito con éxito' });
   }
 });
 
 const PORT = 4000;
 app.listen(PORT, () => {
   console.log(`Servidor Express en funcionamiento en el puerto ${PORT}`);
-});
-
-function generateCartId() {
-  return Math.random().toString(36).substring(2, 15);
-}
+})

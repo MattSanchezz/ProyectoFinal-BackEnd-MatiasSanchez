@@ -89,5 +89,86 @@ class ProductManager {
   }
 }
 
+class CartManager {
+  constructor(filename) {
+    this.carts = [];
+    this.filename = filename;
+    if (fs.existsSync(filename)) {
+      this.loadFromFile(filename);
+    } else {
+      this.saveToFile(filename);
+    }
+  }
+
+  getCartById(cartId) {
+    const cart = this.carts.find((c) => c.id === cartId);
+    return cart || null;
+  }
+
+  addToCart(cartId, productId, quantity) {
+    const cart = this.getCartById(cartId);
+
+    if (!cart) {
+      return 'Carrito no encontrado';
+    }
+
+    const product = ProductManager.getProductsById(productId);
+
+    if (!product) {
+      return 'Producto no encontrado';
+    }
+
+    const cartProduct = {
+      product,
+      quantity,
+    };
+
+    cart.products.push(cartProduct);
+    this.saveToFile(this.filename);
+
+    return 'Producto agregado al carrito con éxito';
+  }
+
+  removeFromCart(cartId, productId) {
+    const cart = this.getCartById(cartId);
+
+    if (!cart) {
+      return 'Carrito no encontrado';
+    }
+
+    cart.products = cart.products.filter((cartProduct) => cartProduct.product.id !== productId);
+
+    this.saveToFile(this.filename);
+
+    return 'Producto eliminado del carrito con éxito';
+  }
+
+  getAllCarts() {
+    return this.carts;
+  }
+
+  saveToFile(filename) {
+    const data = JSON.stringify(this.carts, null, 2);
+    try {
+      fs.writeFileSync(filename, data);
+      console.log(`Los carritos se han guardado en ${filename}`);
+    } catch (error) {
+      console.error('Error al guardar los carritos:', error);
+    }
+  }
+
+  loadFromFile(filename) {
+    try {
+      const data = fs.readFileSync(filename, 'utf8');
+      this.carts = JSON.parse(data);
+      console.log(`Los carritos se han cargado desde ${filename}`);
+    } catch (error) {
+      console.error('Error al cargar los carritos:', error);
+    }
+  }
+}
+
 const productManager = new ProductManager('productos.json');
-export default productManager;
+const cartManager = new CartManager('carrito.json');
+
+export { productManager, CartManager };
