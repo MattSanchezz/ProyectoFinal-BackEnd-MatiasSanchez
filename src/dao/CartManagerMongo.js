@@ -63,8 +63,6 @@ class CartManagerMongo {
         throw new Error("Carrito no encontrado.");
       }
 
-      // Realiza las actualizaciones necesarias en el carrito.
-
       const updatedCart = await cart.save();
       return updatedCart;
     } catch (error) {
